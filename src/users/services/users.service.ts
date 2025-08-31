@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,9 +20,30 @@ export class UsersService {
     return user;
   }
 
-  async create(body: CreateUserDto): Promise<User> {
-    const newUser = await this.usersRepository.save(body);
-    return this.usersRepository.save(newUser);
+  async getProfileByUserId(id: string) {
+    const user = await this.findOne(id);
+    return user.profile;
+  }
+
+  async getPostsByUserId(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['posts'],
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user.posts;
+  }
+
+  async create(body: CreateUserDto) {
+    try {
+      const newUser = this.usersRepository.create(body);
+      const savedUser = await this.usersRepository.save(newUser);
+      return this.findOne(savedUser.id);
+    } catch {
+      throw new BadRequestException('Error creating user');
+    }
   }
 
   async update(id: string, changes: UpdateUserDto) {
@@ -43,22 +64,18 @@ export class UsersService {
     return { message: `User with id ${id} deleted successfully` };
   }
 
-  async getPostsByUserId(id: string) {
-    const user = await this.usersRepository.findOne({
-      where: { id },
-      relations: ['posts'],
-    });
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    return user.posts;
-  }
-
   private async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id }, relations: ['profile'] });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
+    return user;
+  }
+
+  async getUserByEmail(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
     return user;
   }
 }

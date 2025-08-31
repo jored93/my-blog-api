@@ -1,26 +1,32 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity({ name: 'profiles' })
+@Entity({
+  name: 'profiles',
+})
 export class Profile {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @ApiProperty({ description: 'Name' })
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @ApiProperty({ description: 'Last Name' })
-  @Column({ type: 'varchar', length: 100, unique: true, name: 'last_name' })
+  @Column({ type: 'varchar', length: 255, name: 'last_name' })
   lastName: string;
 
-  @ApiProperty({ description: 'Avatar' })
   @Column({ type: 'varchar', length: 255, nullable: true })
-  avatar?: string;
+  avatar: string;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'updated_at' })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }

@@ -24,6 +24,16 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
+  @Get(':id/profile')
+  getProfile(@Param('id') id: string) {
+    return this.usersService.getProfileByUserId(id);
+  }
+
+  @Get(':id/posts')
+  getPosts(@Param('id') id: string) {
+    return this.usersService.getPostsByUserId(id);
+  }
+
   @Post()
   createUser(@Body() body: CreateUserDto) {
     return this.usersService.create(body);
@@ -37,10 +47,5 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
     return await this.usersService.delete(id);
-  }
-
-  @Get(':id/posts')
-  getPosts(@Param('id') id: string) {
-    return this.usersService.getPostsByUserId(id);
   }
 }
